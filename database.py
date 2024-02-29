@@ -2,7 +2,7 @@ from sqlalchemy.engine import URL
 from sqlalchemy import create_engine, Table, MetaData, select, func, and_, not_, text
 from dotenv import load_dotenv
 import os, pandas as p
-import jwt, datetime
+import jwt, datetime, pyodbc
 
 load_dotenv()
 
@@ -124,7 +124,7 @@ class CONNECTION:
                 self.get_table_column(entity, 'COLUMN_TABLE_ENTITY_ID').label('company_id'), # Id of the company
                 self.get_table_column(orders, 'COLUMN_TABLE_ORDERS_CODE').label('order_code'), # Order code
                 self.get_table_column(orders, 'COLUMN_TABLE_ORDERS_STATUS').label('order_status'), # Order status
-                func.row_number().over(partition_by=self.get_table_column(orders_items, 'COLUMN_TABLE_ORDERS_ITEMS_ID'), order_by=self.get_table_column(orders_items, 'COLUMN_TABLE_ORDERS_ITEMS_ID_ITEM')).label('item_number'),  # Get the order item order
+                func.row_number().over(partition_by=self.get_table_column(orders_items, 'COLUMN_TABLE_ORDERS_ITEMS_ID'), order_by=self.get_table_column(orders_items, 'COLUMN_TABLE_ORDERS_ITEMS_ID_ORDER_ITEM')).label('item_number'),  # Get the order item order
                 self.get_table_column(items, 'COLUMN_TABLE_ITEMS_ID').label('item_id'), # Get the item id
                 self.get_table_column(items, 'COLUMN_TABLE_ITEMS_CODE').label('item_code'), # Get the item code
                 self.get_table_column(items, 'COLUMN_TABLE_ITEMS_DESCRIPTION').label('item_description'), # Get product description
@@ -148,8 +148,6 @@ class CONNECTION:
                     self.get_table_column(orders_items, 'COLUMN_OBJ_STATUS') == os.getenv('VALUE_OBJ_STATUS_ACTIVE'),
                     not_(self.get_table_column(orders, 'COLUMN_TABLE_ORDERS_STATUS').in_(['CAN', 'DIG']))
                 )
-            ).order_by(
-                self.get_table_column(orders, 'COLUMN_TABLE_ORDERS_CODE')
             )
 
             # Read statment using pandas to convert to a dataframe, and save the information into class attribute

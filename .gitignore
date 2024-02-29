@@ -1,2 +1,7 @@
 .env
 __pycache__
+build
+dist
+_internal
+icon
+__main__.spec
